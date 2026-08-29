@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hello — Ping Pong</title>
   <style>
     * {
@@ -20,6 +20,11 @@
         "Helvetica Neue", Arial, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       padding: 2rem 1rem;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     .page {
@@ -116,6 +121,7 @@
       text-align: center;
       cursor: pointer;
       user-select: none;
+      touch-action: manipulation;
     }
 
     .overlay h2 {
@@ -166,7 +172,7 @@
         </div>
       </div>
 
-      <p class="hint">Move: W / S or &uarr; / &darr; (or drag on the canvas) &nbsp;&middot;&nbsp; R = restart</p>
+      <p class="hint">Move: W / S or &uarr; / &darr; &nbsp;&middot;&nbsp; Touch: drag your finger anywhere on the field &nbsp;&middot;&nbsp; R = restart</p>
     </div>
   </main>
 
@@ -359,6 +365,13 @@
       pointerY = (e.clientY - rect.top) * (H / rect.height);
       pointerActive = true;
     });
+
+    canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      pointerY = (t.clientY - rect.top) * (H / rect.height);
+      pointerActive = true;
+    }, { passive: true });
 
     canvas.addEventListener('touchmove', (e) => {
       e.preventDefault();
