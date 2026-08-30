@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Hello — Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="index.html" class="brand">Hello</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="calculator.html" class="nav-link active" aria-current="page">Calculator</a>
+      <a href="todo.html" class="nav-link">Todo</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1 class="page-title">Calculator</h1>
+    <div class="card">
+      <div class="calc-display" id="display" aria-live="polite">0</div>
+      <div class="calc-buttons">
+        <button class="btn-clear" data-key="C" aria-label="Clear">C</button>
+        <button class="btn-digit" data-key="&#9003;" aria-label="Backspace">&#9003;</button>
+        <button class="btn-op" data-key="/">&#247;</button>
+        <button class="btn-op" data-key="*">&#215;</button>
+        <button class="btn-digit" data-key="7">7</button>
+        <button class="btn-digit" data-key="8">8</button>
+        <button class="btn-digit" data-key="9">9</button>
+        <button class="btn-op" data-key="-">&#8722;</button>
+        <button class="btn-digit" data-key="4">4</button>
+        <button class="btn-digit" data-key="5">5</button>
+        <button class="btn-digit" data-key="6">6</button>
+        <button class="btn-op" data-key="+">+</button>
+        <button class="btn-digit" data-key="1">1</button>
+        <button class="btn-digit" data-key="2">2</button>
+        <button class="btn-digit" data-key="3">3</button>
+        <button class="btn-eq span-2-rows" data-key="=">=</button>
+        <button class="btn-digit span-2" data-key="0">0</button>
+        <button class="btn-digit" data-key=".">.</button>
+      </div>
+      <p class="hint">Keyboard: digits, + &minus; &times; &divide;, Enter, Esc, Backspace</p>
+    </div>
+  </main>
+
+  <script>
+    const display = document.getElementById('display');
+
+    let acc = null;
+    let op = null;
+    let entry = '';
+    let fresh = false;
+    let error = false;
+
+    function fmt(x) {
+      let s = String(parseFloat(x.toPrecision(12)));
+      if (s.length > 14) s = x.toExponential(8);
+      return s;
+    }
+
+    function compute(a, b, o) {
+      switch (o) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return b === 0 ? Infinity : a / b;
+      }
+    }
+
+    function showError() {
+      error = true;
+      acc = null;
+      op = null;
+      entry = '';
+      fresh = false;
+      display.textContent = 'Error';
+    }
+
+    function handleClear() {
+      error = false;
+      acc = null;
+      op = null;
+      entry = '';
+      fresh = false;
+      display.textContent = '0';
+    }
+
+    function handleDigit(d) {
+      if (error) handleClear();
+      if (fresh) {
+        entry = '';
+        fresh = false;
+      }
+      if (entry.length >= 14) return;
+      entry = entry === '0' ? d : entry + d;
+      display.textContent = entry;
+    }
+
+    function handleDot() {
+      if (error) handleClear();
+      if (fresh) {
+        entry = '';
+        fresh = false;
+      }
+      if (entry.includes('.')) return;
+      entry = entry === '' ? '0.' : entry + '.';
+      display.textContent = entry;
+    }
+
+    function handleOp(o) {
+      if (error) return;
+      if (fresh && acc !== null && op !== null) {
+        op = o;
+        return;
+      }
+      if (entry !== '') {
+        const val = parseFloat(entry);
+        if (acc === null) {
+          acc = val;
+        } else if (op !== null) {
+          const r = compute(acc, val, op);
+          if (!isFinite(r)) return showError();
+          acc = r;
+        }
+        op = o;
+        entry = '';
+        fresh = false;
+        display.textContent = fmt(acc);
+      } else if (acc !== null) {
+        op = o;
+      }
+    }
+
+    function handleEquals() {
+      if (error) return;
+      if (op !== null && entry !== '') {
+        const r = compute(acc, parseFloat(entry), op);
+        if (!isFinite(r)) return showError();
+        entry = fmt(r);
+        acc = null;
+        op = null;
+        fresh = true;
+        display.textContent = entry;
+      } else if (op !== null && acc !== null) {
+        entry = fmt(acc);
+        acc = null;
+        op = null;
+        fresh = true;
+        display.textContent = entry;
+      }
+    }
+
+    function handleBackspace() {
+      if (error || fresh) return;
+      entry = entry.slice(0, -1);
+      display.textContent = entry === '' ? '0' : entry;
+    }
+
+    document.querySelectorAll('.calc-buttons .btn-digit, .calc-buttons .btn-op, .calc-buttons .btn-clear, .calc-buttons .btn-eq').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const k = btn.dataset.key;
+        if (/^[0-9]$/.test(k)) handleDigit(k);
+        else if (k === '.') handleDot();
+        else if (k === 'C') handleClear();
+        else if (k === '\u232B') handleBackspace();
+        else if (k === '=') handleEquals();
+        else handleOp(k);
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (/^[0-9]$/.test(e.key)) handleDigit(e.key);
+      else if (e.key === '.') handleDot();
+      else if (['+', '-', '*', '/'].includes(e.key)) {
+        e.preventDefault();
+        handleOp(e.key);
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleEquals();
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') {
+        handleClear();
+      }
+    });
+  </script>
+</body>
+</html>
