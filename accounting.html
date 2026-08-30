@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Hello — Accounting</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tb-debit, .tb-credit, .tb-amount, .tb-balance {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .tb-total-row td {
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column align-items-center">
+  <div class="container" style="max-width: 980px;">
+    <nav class="navbar navbar-expand bg-white rounded-4 shadow-sm px-3 py-2 mt-3" aria-label="Main navigation">
+      <div class="container-fluid p-0">
+        <a class="navbar-brand fw-bold gradient-text" href="index.html">Hello</a>
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item">
+            <a class="nav-link px-3" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="calculator.html">Calculator</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="todo.html">Todo</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 active" aria-current="page" href="accounting.html">Accounting</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="mt-4 mb-3">
+      <h1 class="text-white fw-bold text-center mb-3">Double-Entry Accounting</h1>
+
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <ul class="nav nav-pills mb-3 flex-wrap" id="main-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-journal" data-bs-toggle="pill" data-bs-target="#pane-journal" type="button" role="tab">Journal</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-ledger" data-bs-toggle="pill" data-bs-target="#pane-ledger" type="button" role="tab">Ledger</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-trial" data-bs-toggle="pill" data-bs-target="#pane-trial" type="button" role="tab">Trial Balance</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-reports" data-bs-toggle="pill" data-bs-target="#pane-reports" type="button" role="tab">Reports</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-accounts" data-bs-toggle="pill" data-bs-target="#pane-accounts" type="button" role="tab">Accounts</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Journal -->
+            <div class="tab-pane fade show active" id="pane-journal" role="tabpanel">
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <button class="btn btn-primary btn-sm" id="new-entry-btn">New entry</button>
+                <button class="btn btn-outline-secondary btn-sm" id="sample-btn">Load sample data</button>
+              </div>
+              <div id="entry-list"></div>
+
+              <div class="border-top pt-3 mt-3">
+                <h6 class="fw-semibold mb-2">Data (CSV)</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-outline-secondary btn-sm" id="export-journals-btn">Export journals CSV</button>
+                  <label class="btn btn-outline-secondary btn-sm mb-0" for="file-journals">Import journals CSV</label>
+                  <input type="file" id="file-journals" accept=".csv,text/csv" hidden />
+                  <button class="btn btn-outline-secondary btn-sm" id="export-accounts-btn">Export accounts CSV</button>
+                  <label class="btn btn-outline-secondary btn-sm mb-0" for="file-accounts">Import accounts CSV</label>
+                  <input type="file" id="file-accounts" accept=".csv,text/csv" hidden />
+                </div>
+                <p class="text-muted small mt-2 mb-0" id="acct-status">Data is saved automatically in this browser. Every entry must balance: debits = credits.</p>
+              </div>
+            </div>
+
+            <!-- Ledger -->
+            <div class="tab-pane fade" id="pane-ledger" role="tabpanel">
+              <div class="row g-2 mb-3">
+                <div class="col-sm-6 col-lg-4">
+                  <select class="form-select form-select-sm" id="ledger-account"></select>
+                </div>
+                <div class="col-sm-6 col-lg-8 d-flex align-items-center">
+                  <span class="small text-muted">Running balance shown with normal-balance sign.</span>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle">
+                  <thead>
+                    <tr><th>Date</th><th>Entry</th><th>Description</th><th class="tb-debit">Debit</th><th class="tb-credit">Credit</th><th class="tb-balance">Balance</th></tr>
+                  </thead>
+                  <tbody id="ledger-body"></tbody>
+                  <tfoot id="ledger-foot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Trial Balance -->
+            <div class="tab-pane fade" id="pane-trial" role="tabpanel">
+              <div id="trial-check" class="mb-2"></div>
+              <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle">
+                  <thead>
+                    <tr><th>Code</th><th>Account</th><th>Type</th><th class="tb-debit">Debit</th><th class="tb-credit">Credit</th></tr>
+                  </thead>
+                  <tbody id="trial-body"></tbody>
+                  <tfoot id="trial-foot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Reports -->
+            <div class="tab-pane fade" id="pane-reports" role="tabpanel">
+              <div class="row g-3">
+                <div class="col-lg-6">
+                  <div class="border rounded-3 p-3 h-100">
+                    <h6 class="fw-semibold mb-3">Income Statement</h6>
+                    <div id="income-statement"></div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="border rounded-3 p-3 h-100">
+                    <h6 class="fw-semibold mb-3">Balance Sheet</h6>
+                    <div id="balance-sheet"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accounts -->
+            <div class="tab-pane fade" id="pane-accounts" role="tabpanel">
+              <form class="row g-2 mb-3" id="account-form">
+                <div class="col-4 col-md-2">
+                  <input type="text" class="form-control form-control-sm" id="acc-code" placeholder="Code" maxlength="10" />
+                </div>
+                <div class="col-8 col-md-4">
+                  <input type="text" class="form-control form-control-sm" id="acc-name" placeholder="Account name" maxlength="60" />
+                </div>
+                <div class="col-6 col-md-3">
+                  <select class="form-select form-select-sm" id="acc-type">
+                    <option value="asset">Asset</option>
+                    <option value="liability">Liability</option>
+                    <option value="equity">Equity</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                  </select>
+                </div>
+                <div class="col-6 col-md-3 d-grid">
+                  <button class="btn btn-primary btn-sm" type="submit">Add account</button>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead><tr><th>Code</th><th>Name</th><th>Type</th><th></th></tr></thead>
+                  <tbody id="accounts-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Entry modal -->
+  <div class="modal fade" id="entry-modal" tabindex="-1" aria-labelledby="entry-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="entry-modal-title">New journal entry</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-2 mb-3">
+            <div class="col-5 col-md-3">
+              <label class="form-label small mb-1" for="entry-date">Date</label>
+              <input type="date" class="form-control form-control-sm" id="entry-date" />
+            </div>
+            <div class="col-7 col-md-9">
+              <label class="form-label small mb-1" for="entry-desc">Description</label>
+              <input type="text" class="form-control form-control-sm" id="entry-desc" maxlength="200" placeholder="What happened?" />
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr><th style="width:45%">Account</th><th style="width:20%">Debit</th><th style="width:20%">Credit</th><th style="width:15%"></th></tr>
+              </thead>
+              <tbody id="entry-lines"></tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-line-btn">Add line</button>
+            <span id="balance-indicator" class="small"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="save-entry-btn">Save entry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const ACCOUNTS_KEY = 'hello.accounts';
+    const ENTRIES_KEY = 'hello.entries';
+
+    const DEFAULT_ACCOUNTS = [
+      { id: 'acc-1000', code: '1000', name: 'Cash', type: 'asset' },
+      { id: 'acc-1100', code: '1100', name: 'Accounts Receivable', type: 'asset' },
+      { id: 'acc-1200', code: '1200', name: 'Inventory', type: 'asset' },
+      { id: 'acc-1300', code: '1300', name: 'Fixed Assets', type: 'asset' },
+      { id: 'acc-2000', code: '2000', name: 'Accounts Payable', type: 'liability' },
+      { id: 'acc-2100', code: '2100', name: 'Loans Payable', type: 'liability' },
+      { id: 'acc-3000', code: '3000', name: "Owner's Capital", type: 'equity' },
+      { id: 'acc-3100', code: '3100', name: 'Retained Earnings', type: 'equity' },
+      { id: 'acc-4000', code: '4000', name: 'Sales Revenue', type: 'income' },
+      { id: 'acc-4100', code: '4100', name: 'Service Revenue', type: 'income' },
+      { id: 'acc-5000', code: '5000', name: 'Cost of Goods Sold', type: 'expense' },
+      { id: 'acc-5100', code: '5100', name: 'Rent Expense', type: 'expense' },
+      { id: 'acc-5200', code: '5200', name: 'Salaries Expense', type: 'expense' },
+      { id: 'acc-5300', code: '5300', name: 'Utilities Expense', type: 'expense' },
+      { id: 'acc-5400', code: '5400', name: 'Other Expenses', type: 'expense' },
+    ];
+
+    let accounts = [];
+    let entries = [];
+    let editingId = null;
+
+    // ---------- small helpers ----------
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function money(n) {
+      return Math.round((n + Number.EPSILON) * 100) / 100;
+    }
+
+    function fmtMoney(n) {
+      const v = money(n);
+      const neg = v < 0;
+      const s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return (neg ? '-' : '') + s;
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function csvEscape(s) {
+      s = String(s);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let field = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false;
+          } else field += c;
+        } else if (c === '"') {
+          inQuotes = true;
+        } else if (c === ',') {
+          row.push(field);
+          field = '';
+        } else if (c === '\n' || c === '\r') {
+          if (c === '\r' && text[i + 1] === '\n') i++;
+          row.push(field);
+          field = '';
+          if (row.some((f) => f !== '')) rows.push(row);
+          row = [];
+        } else {
+          field += c;
+        }
+      }
+      if (field !== '' || row.length > 0) {
+        row.push(field);
+        if (row.some((f) => f !== '')) rows.push(row);
+      }
+      return rows;
+    }
+
+    function accById(id) {
+      return accounts.find((a) => a.id === id);
+    }
+
+    function accByCode(code) {
+      return accounts.find((a) => a.code === String(code));
+    }
+
+    function sortedEntries() {
+      return [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.num.localeCompare(b.num));
+    }
+
+    function nextEntryNumber(list) {
+      let max = 0;
+      for (const e of list) {
+        const m = /^JE-(\d+)$/.exec(e.num);
+        if (m) max = Math.max(max, parseInt(m[1], 10));
+      }
+      return 'JE-' + String(max + 1).padStart(4, '0');
+    }
+
+    // ---------- validation & core computations ----------
+
+    function validateEntry(lines) {
+      if (lines.length < 2) return 'An entry needs at least two lines (a debit and a credit).';
+      let sumD = 0;
+      let sumC = 0;
+      let incomplete = false;
+      for (const ln of lines) {
+        const d = parseFloat(ln.debit) || 0;
+        const c = parseFloat(ln.credit) || 0;
+        if (!ln.accountId) incomplete = true;
+        if (d < 0 || c < 0) return 'Amounts cannot be negative.';
+        if (d > 0 && c > 0) return 'A line cannot be both debit and credit.';
+        if (d === 0 && c === 0) incomplete = true;
+        sumD = money(sumD + d);
+        sumC = money(sumC + c);
+      }
+      if (incomplete) return 'Every line needs an account and an amount.';
+      if (Math.abs(sumD - sumC) > 0.01) {
+        return 'Entry does not balance: debits ' + fmtMoney(sumD) + ' vs credits ' + fmtMoney(sumC) + '.';
+      }
+      return null;
+    }
+
+    function accountTotals(entryList) {
+      const totals = {};
+      for (const a of accounts) totals[a.id] = { debit: 0, credit: 0 };
+      for (const e of entryList) {
+        for (const ln of e.lines) {
+          const t = totals[ln.accountId];
+          if (!t) continue;
+          t.debit = money(t.debit + (ln.debit || 0));
+          t.credit = money(t.credit + (ln.credit || 0));
+        }
+      }
+      return totals;
+    }
+
+    function normalDebit(acc) {
+      return acc.type === 'asset' || acc.type === 'expense';
+    }
+
+    function computeLedger(entryList, accountId) {
+      const acc = accById(accountId);
+      const normalD = acc ? normalDebit(acc) : true;
+      let bal = 0;
+      const lines = [];
+      const sorted = [...entryList].sort((a, b) => a.date.localeCompare(b.date) || a.num.localeCompare(b.num));
+      for (const e of sorted) {
+        const ln = e.lines.find((l) => l.accountId === accountId);
+        if (!ln) continue;
+        const d = money(ln.debit || 0);
+        const c = money(ln.credit || 0);
+        bal = money(bal + (normalD ? d - c : c - d));
+        lines.push({ date: e.date, num: e.num, desc: e.desc, debit: d || '', credit: c || '', balance: bal });
+      }
+      return { lines, balance: bal };
+    }
+
+    function trialBalance(entryList) {
+      const totals = accountTotals(entryList);
+      const rows = accounts.map((a) => {
+        const t = totals[a.id];
+        const net = money(t.debit - t.credit);
+        return { account: a, debit: net > 0 ? net : 0, credit: net < 0 ? -net : 0, balance: net };
+      }).filter((r) => r.debit !== 0 || r.credit !== 0);
+      const totalDebit = money(rows.reduce((s, r) => s + r.debit, 0));
+      const totalCredit = money(rows.reduce((s, r) => s + r.credit, 0));
+      return { rows, totalDebit, totalCredit, balanced: Math.abs(totalDebit - totalCredit) < 0.01 };
+    }
+
+    function incomeStatement(entryList) {
+      const totals = accountTotals(entryList);
+      const revenue = accounts.filter((a) => a.type === 'income').map((a) => {
+        const t = totals[a.id];
+        return { account: a, amount: -money(t.debit - t.credit) };
+      }).filter((r) => r.amount !== 0);
+      const expenses = accounts.filter((a) => a.type === 'expense').map((a) => {
+        const t = totals[a.id];
+        return { account: a, amount: money(t.debit - t.credit) };
+      }).filter((r) => r.amount !== 0);
+      const totalRevenue = money(revenue.reduce((s, r) => s + r.amount, 0));
+      const totalExpenses = money(expenses.reduce((s, r) => s + r.amount, 0));
+      return { revenue, expenses, totalRevenue, totalExpenses, netIncome: money(totalRevenue - totalExpenses) };
+    }
+
+    function balanceSheet(entryList) {
+      const totals = accountTotals(entryList);
+      const assets = accounts.filter((a) => a.type === 'asset').map((a) => {
+        const t = totals[a.id];
+        return { account: a, amount: money(t.debit - t.credit) };
+      }).filter((r) => r.amount !== 0);
+      const liabilities = accounts.filter((a) => a.type === 'liability').map((a) => {
+        const t = totals[a.id];
+        return { account: a, amount: -money(t.debit - t.credit) };
+      }).filter((r) => r.amount !== 0);
+      const equityAcc = accounts.filter((a) => a.type === 'equity').map((a) => {
+        const t = totals[a.id];
+        return { account: a, amount: -money(t.debit - t.credit) };
+      }).filter((r) => r.amount !== 0);
+      const totalAssets = money(assets.reduce((s, r) => s + r.amount, 0));
+      const totalLiab = money(liabilities.reduce((s, r) => s + r.amount, 0));
+      const totalEquityAcc = money(equityAcc.reduce((s, r) => s + r.amount, 0));
+      const ni = incomeStatement(entryList);
+      const totalEquity = money(totalEquityAcc + ni.netIncome);
+      const totalLiabEq = money(totalLiab + totalEquity);
+      return {
+        assets, liabilities, equityAcc, netIncome: ni.netIncome,
+        totalAssets, totalLiab, totalEquityAcc, totalEquity, totalLiabEq,
+        balanced: Math.abs(totalAssets - totalLiabEq) < 0.01,
+      };
+    }
+
+    // ---------- persistence ----------
+
+    function load() {
+      try {
+        const rawA = localStorage.getItem(ACCOUNTS_KEY);
+        accounts = rawA ? JSON.parse(rawA) : null;
+        if (!Array.isArray(accounts) || accounts.length === 0) accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      } catch (e) {
+        accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      }
+      try {
+        const rawE = localStorage.getItem(ENTRIES_KEY);
+        entries = rawE ? JSON.parse(rawE) : [];
+        if (!Array.isArray(entries)) entries = [];
+      } catch (e) {
+        entries = [];
+      }
+    }
+
+    function persist() {
+      try {
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+        localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
+      } catch (e) {
+        /* storage unavailable */
+      }
+    }
+
+    function save() {
+      persist();
+      renderAll();
+    }
+
+    function setStatus(msg) {
+      document.getElementById('acct-status').textContent = msg;
+    }
+
+    // ---------- CSV ----------
+
+    function toEntriesCSV(entryList) {
+      const lines = ['num,date,desc,account_code,debit,credit'];
+      for (const e of entryList) {
+        for (const ln of e.lines) {
+          const a = accById(ln.accountId);
+          lines.push([csvEscape(e.num), csvEscape(e.date), csvEscape(e.desc), csvEscape(a ? a.code : ''), csvEscape(ln.debit || 0), csvEscape(ln.credit || 0)].join(','));
+        }
+      }
+      return lines.join('\n');
+    }
+
+    function parseEntriesCSV(text) {
+      const rows = parseCSV(text);
+      const first = rows[0] || [];
+      const hasHeader = /num/i.test(String(first[0] || '')) && /date/i.test(String(first[1] || ''));
+      const start = hasHeader ? 1 : 0;
+      const groups = [];
+      const byKey = {};
+      for (let i = start; i < rows.length; i++) {
+        const r = rows[i];
+        if (r.length < 4) continue;
+        const num = String(r[0] || '').trim() || null;
+        const date = String(r[1] || '').trim();
+        const desc = String(r[2] || '').trim();
+        const code = String(r[3] || '').trim();
+        const debit = parseFloat(r[4]) || 0;
+        const credit = parseFloat(r[5]) || 0;
+        const key = num || 'row' + i;
+        let g = byKey[key];
+        if (!g) {
+          g = { num: num, date: date, desc: desc, lines: [] };
+          byKey[key] = g;
+          groups.push(g);
+        }
+        const acc = accByCode(code);
+        if (!acc) continue;
+        g.lines.push({ accountId: acc.id, debit: debit, credit: credit });
+      }
+      const result = [];
+      let skipped = 0;
+      for (const g of groups) {
+        if (g.lines.length < 2) { skipped++; continue; }
+        const err = validateEntry(g.lines);
+        if (err) { skipped++; continue; }
+        const numOk = g.num && !result.some((e) => e.num === g.num);
+        result.push({
+          id: generateId(),
+          num: numOk ? g.num : nextEntryNumber(result),
+          date: /^\d{4}-\d{2}-\d{2}$/.test(g.date) ? g.date : todayStr(),
+          desc: g.desc || 'Imported entry',
+          lines: g.lines,
+        });
+      }
+      return { entries: result, skipped: skipped };
+    }
+
+    function toAccountsCSV(accList) {
+      const lines = ['code,name,type'];
+      for (const a of accList) {
+        lines.push([csvEscape(a.code), csvEscape(a.name), csvEscape(a.type)].join(','));
+      }
+      return lines.join('\n');
+    }
+
+    function parseAccountsCSV(text) {
+      const rows = parseCSV(text);
+      const first = rows[0] || [];
+      const hasHeader = /code/i.test(String(first[0] || '')) && /name/i.test(String(first[1] || ''));
+      const start = hasHeader ? 1 : 0;
+      const added = [];
+      const skipped = [];
+      for (let i = start; i < rows.length; i++) {
+        const r = rows[i];
+        const code = String(r[0] || '').trim();
+        const name = String(r[1] || '').trim();
+        const type = String(r[2] || '').trim();
+        const types = ['asset', 'liability', 'equity', 'income', 'expense'];
+        if (!code || !name || !types.includes(type)) { skipped.push(code || '(blank)'); continue; }
+        if (accByCode(code)) { skipped.push(code); continue; }
+        accounts.push({ id: 'acc-' + code + '-' + generateId(), code: code, name: name, type: type });
+        added.push(code);
+      }
+      return { added: added, skipped: skipped };
+    }
+
+    function download(name, content) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    // ---------- rendering ----------
+
+    function td(content, cls) {
+      const c = document.createElement('td');
+      if (cls) c.className = cls;
+      c.textContent = content;
+      return c;
+    }
+
+    function renderEntries() {
+      const listEl = document.getElementById('entry-list');
+      const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.num.localeCompare(a.num));
+      listEl.textContent = '';
+      if (sorted.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'text-muted text-center py-4 mb-0';
+        p.textContent = 'No journal entries yet — record your first transaction.';
+        listEl.appendChild(p);
+        return;
+      }
+      for (const e of sorted) {
+        const card = document.createElement('div');
+        card.className = 'border rounded-3 p-3 mb-2';
+
+        const head = document.createElement('div');
+        head.className = 'd-flex flex-wrap align-items-center gap-2';
+
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-secondary text-white';
+        badge.textContent = e.num;
+
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'small text-muted';
+        dateSpan.textContent = e.date;
+
+        const descSpan = document.createElement('span');
+        descSpan.className = 'fw-medium flex-grow-1';
+        descSpan.textContent = e.desc;
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-outline-secondary btn-sm flex-shrink-0';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => openEntryModal(e.id));
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-outline-danger btn-sm flex-shrink-0';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', () => deleteEntry(e.id));
+
+        head.appendChild(badge);
+        head.appendChild(dateSpan);
+        head.appendChild(descSpan);
+        head.appendChild(editBtn);
+        head.appendChild(delBtn);
+
+        const tbl = document.createElement('table');
+        tbl.className = 'table table-sm table-striped mb-0 mt-2';
+        const tbody = document.createElement('tbody');
+        for (const ln of e.lines) {
+          const a = accById(ln.accountId);
+          if (!a) continue;
+          const tr = document.createElement('tr');
+          tr.appendChild(td(a.code));
+          tr.appendChild(td(a.name));
+          tr.appendChild(td(ln.debit ? fmtMoney(ln.debit) : '', 'tb-debit'));
+          tr.appendChild(td(ln.credit ? fmtMoney(ln.credit) : '', 'tb-credit'));
+          tbody.appendChild(tr);
+        }
+        tbl.appendChild(tbody);
+
+        card.appendChild(head);
+        card.appendChild(tbl);
+        listEl.appendChild(card);
+      }
+    }
+
+    function renderLedger() {
+      const sel = document.getElementById('ledger-account');
+      const selected = sel.value || (accounts[0] ? accounts[0].id : '');
+      sel.textContent = '';
+      for (const a of [...accounts].sort((x, y) => x.code.localeCompare(y.code))) {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = a.code + ' — ' + a.name;
+        if (a.id === selected) opt.selected = true;
+        sel.appendChild(opt);
+      }
+      const body = document.getElementById('ledger-body');
+      const foot = document.getElementById('ledger-foot');
+      body.textContent = '';
+      foot.textContent = '';
+      const res = computeLedger(entries, selected);
+      if (res.lines.length === 0) {
+        const tr = document.createElement('tr');
+        const c = document.createElement('td');
+        c.colSpan = 6;
+        c.className = 'text-center text-muted py-3';
+        c.textContent = 'No postings for this account.';
+        tr.appendChild(c);
+        body.appendChild(tr);
+      } else {
+        for (const l of res.lines) {
+          const tr = document.createElement('tr');
+          tr.appendChild(td(l.date));
+          tr.appendChild(td(l.num));
+          tr.appendChild(td(l.desc));
+          tr.appendChild(td(l.debit === '' ? '' : fmtMoney(l.debit), 'tb-debit'));
+          tr.appendChild(td(l.credit === '' ? '' : fmtMoney(l.credit), 'tb-credit'));
+          tr.appendChild(td(fmtMoney(l.balance), 'tb-balance'));
+          body.appendChild(tr);
+        }
+      }
+      const tr = document.createElement('tr');
+      tr.className = 'tb-total-row';
+      const c1 = document.createElement('td');
+      c1.colSpan = 5;
+      c1.textContent = 'Closing balance';
+      tr.appendChild(c1);
+      tr.appendChild(td(fmtMoney(res.balance), 'tb-balance'));
+      foot.appendChild(tr);
+    }
+
+    function renderTrial() {
+      const body = document.getElementById('trial-body');
+      const foot = document.getElementById('trial-foot');
+      const check = document.getElementById('trial-check');
+      body.textContent = '';
+      foot.textContent = '';
+      const tb = trialBalance(entries);
+      check.textContent = '';
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + (tb.balanced ? 'bg-success' : 'bg-danger');
+      badge.textContent = tb.balanced ? 'Balanced — debits equal credits' : 'Out of balance';
+      check.appendChild(badge);
+      if (tb.rows.length === 0) {
+        const tr = document.createElement('tr');
+        const c = document.createElement('td');
+        c.colSpan = 5;
+        c.className = 'text-center text-muted py-3';
+        c.textContent = 'No activity yet.';
+        tr.appendChild(c);
+        body.appendChild(tr);
+      }
+      for (const r of tb.rows) {
+        const tr = document.createElement('tr');
+        tr.appendChild(td(r.account.code));
+        tr.appendChild(td(r.account.name));
+        tr.appendChild(td(r.account.type));
+        tr.appendChild(td(r.debit ? fmtMoney(r.debit) : '', 'tb-debit'));
+        tr.appendChild(td(r.credit ? fmtMoney(r.credit) : '', 'tb-credit'));
+        body.appendChild(tr);
+      }
+      const tr = document.createElement('tr');
+      tr.className = 'tb-total-row';
+      tr.appendChild(td(''));
+      tr.appendChild(td('Total'));
+      tr.appendChild(td(''));
+      tr.appendChild(td(fmtMoney(tb.totalDebit), 'tb-debit'));
+      tr.appendChild(td(fmtMoney(tb.totalCredit), 'tb-credit'));
+      foot.appendChild(tr);
+    }
+
+    function statementTable(rows, totalLabel, totalValue, lossLabel) {
+      const tbl = document.createElement('table');
+      tbl.className = 'table table-sm mb-0';
+      const tbody = document.createElement('tbody');
+      for (const r of rows) {
+        const tr = document.createElement('tr');
+        tr.appendChild(td(r.account.name));
+        tr.appendChild(td(fmtMoney(r.amount), 'tb-amount'));
+        tbody.appendChild(tr);
+      }
+      if (rows.length === 0) {
+        const tr = document.createElement('tr');
+        const c = document.createElement('td');
+        c.colSpan = 2;
+        c.className = 'text-muted';
+        c.textContent = 'No activity.';
+        tr.appendChild(c);
+        tbody.appendChild(tr);
+      }
+      const tr = document.createElement('tr');
+      tr.className = 'tb-total-row';
+      tr.appendChild(td(totalLabel));
+      tr.appendChild(td(fmtMoney(totalValue), 'tb-amount'));
+      tbody.appendChild(tr);
+      tbl.appendChild(tbody);
+      return tbl;
+    }
+
+    function renderReports() {
+      const is = incomeStatement(entries);
+      const bs = balanceSheet(entries);
+
+      const isEl = document.getElementById('income-statement');
+      isEl.textContent = '';
+      const rev = statementTable(is.revenue, 'Total revenue', is.totalRevenue);
+      const exp = statementTable(is.expenses, 'Total expenses', is.totalExpenses);
+      const netRow = document.createElement('div');
+      netRow.className = 'd-flex justify-content-between fw-semibold mt-2 pt-2 border-top ' + (is.netIncome < 0 ? 'text-danger' : 'text-success');
+      const lbl = document.createElement('span');
+      lbl.textContent = is.netIncome < 0 ? 'Net loss' : 'Net income';
+      const val = document.createElement('span');
+      val.textContent = fmtMoney(is.netIncome);
+      netRow.appendChild(lbl);
+      netRow.appendChild(val);
+      isEl.appendChild(rev);
+      isEl.appendChild(exp);
+      isEl.appendChild(netRow);
+
+      const bsEl = document.getElementById('balance-sheet');
+      bsEl.textContent = '';
+      const aTbl = statementTable(bs.assets, 'Total assets', bs.totalAssets);
+      const lTbl = statementTable(bs.liabilities, 'Total liabilities', bs.totalLiab);
+      const eRows = bs.equityAcc.map((r) => ({ account: r.account, amount: r.amount }));
+      eRows.push({ account: { name: 'Current earnings' }, amount: bs.netIncome });
+      const eTbl = statementTable(eRows, 'Total equity', bs.totalEquity);
+
+      const h1 = document.createElement('h6');
+      h1.className = 'small text-muted text-uppercase mb-1 mt-2';
+      h1.textContent = 'Assets';
+      const h2 = document.createElement('h6');
+      h2.className = 'small text-muted text-uppercase mb-1 mt-3';
+      h2.textContent = 'Liabilities';
+      const h3 = document.createElement('h6');
+      h3.className = 'small text-muted text-uppercase mb-1 mt-3';
+      h3.textContent = 'Equity';
+      const sum = document.createElement('div');
+      sum.className = 'd-flex justify-content-between fw-semibold mt-2 pt-2 border-top';
+      const s1 = document.createElement('span');
+      s1.textContent = 'Total liabilities + equity';
+      const s2 = document.createElement('span');
+      s2.textContent = fmtMoney(bs.totalLiabEq);
+      sum.appendChild(s1);
+      sum.appendChild(s2);
+      const badge = document.createElement('div');
+      badge.className = 'mt-2';
+      const b = document.createElement('span');
+      b.className = 'badge ' + (bs.balanced ? 'bg-success' : 'bg-danger');
+      b.textContent = bs.balanced ? 'Balanced' : 'Out of balance';
+      badge.appendChild(b);
+
+      bsEl.appendChild(h1);
+      bsEl.appendChild(aTbl);
+      bsEl.appendChild(h2);
+      bsEl.appendChild(lTbl);
+      bsEl.appendChild(h3);
+      bsEl.appendChild(eTbl);
+      bsEl.appendChild(sum);
+      bsEl.appendChild(badge);
+    }
+
+    function renderAccounts() {
+      const body = document.getElementById('accounts-body');
+      body.textContent = '';
+      for (const a of [...accounts].sort((x, y) => x.code.localeCompare(y.code))) {
+        const tr = document.createElement('tr');
+        tr.appendChild(td(a.code));
+        tr.appendChild(td(a.name));
+        tr.appendChild(td(a.type));
+        const tdDel = document.createElement('td');
+        tdDel.className = 'text-end';
+        const used = entries.some((e) => e.lines.some((l) => l.accountId === a.id));
+        const del = document.createElement('button');
+        del.className = 'btn btn-outline-danger btn-sm';
+        del.textContent = 'Delete';
+        if (used) {
+          del.disabled = true;
+          del.title = 'Account has postings and cannot be deleted';
+        }
+        del.addEventListener('click', () => deleteAccount(a.id));
+        tdDel.appendChild(del);
+        tr.appendChild(tdDel);
+        body.appendChild(tr);
+      }
+    }
+
+    function renderAll() {
+      renderEntries();
+      renderLedger();
+      renderTrial();
+      renderReports();
+      renderAccounts();
+    }
+
+    // ---------- entry modal ----------
+
+    function addLineRow(accId, debit, credit) {
+      const tbody = document.getElementById('entry-lines');
+      const tr = document.createElement('tr');
+
+      const tdAcc = document.createElement('td');
+      const sel = document.createElement('select');
+      sel.className = 'form-select form-select-sm';
+      for (const a of [...accounts].sort((x, y) => x.code.localeCompare(y.code))) {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = a.code + ' — ' + a.name;
+        if (a.id === accId) opt.selected = true;
+        sel.appendChild(opt);
+      }
+      sel.addEventListener('change', updateBalance);
+      tdAcc.appendChild(sel);
+
+      const tdD = document.createElement('td');
+      const inpD = document.createElement('input');
+      inpD.type = 'number';
+      inpD.className = 'form-control form-control-sm line-debit';
+      inpD.min = '0';
+      inpD.step = '0.01';
+      inpD.placeholder = '0.00';
+      if (debit) inpD.value = debit;
+      inpD.addEventListener('input', updateBalance);
+      tdD.appendChild(inpD);
+
+      const tdC = document.createElement('td');
+      const inpC = document.createElement('input');
+      inpC.type = 'number';
+      inpC.className = 'form-control form-control-sm line-credit';
+      inpC.min = '0';
+      inpC.step = '0.01';
+      inpC.placeholder = '0.00';
+      if (credit) inpC.value = credit;
+      inpC.addEventListener('input', updateBalance);
+      tdC.appendChild(inpC);
+
+      const tdX = document.createElement('td');
+      const rm = document.createElement('button');
+      rm.className = 'btn btn-sm btn-outline-danger';
+      rm.textContent = 'Remove';
+      rm.addEventListener('click', () => {
+        tr.remove();
+        updateBalance();
+      });
+      tdX.appendChild(rm);
+
+      tr.appendChild(tdAcc);
+      tr.appendChild(tdD);
+      tr.appendChild(tdC);
+      tr.appendChild(tdX);
+      tbody.appendChild(tr);
+    }
+
+    function collectLines() {
+      const tbody = document.getElementById('entry-lines');
+      const lines = [];
+      for (const tr of tbody.children) {
+        const sel = tr.querySelector('select');
+        const d = tr.querySelector('.line-debit');
+        const c = tr.querySelector('.line-credit');
+        if (!sel || !d || !c) continue;
+        lines.push({
+          accountId: sel.value,
+          debit: parseFloat(d.value) || 0,
+          credit: parseFloat(c.value) || 0,
+        });
+      }
+      return lines;
+    }
+
+    function updateBalance() {
+      const lines = collectLines();
+      let sumD = 0;
+      let sumC = 0;
+      for (const ln of lines) {
+        sumD = money(sumD + ln.debit);
+        sumC = money(sumC + ln.credit);
+      }
+      const ind = document.getElementById('balance-indicator');
+      if (Math.abs(sumD - sumC) < 0.01 && (sumD > 0 || sumC > 0)) {
+        ind.className = 'small text-success fw-medium';
+        ind.textContent = 'Balanced: ' + fmtMoney(sumD);
+      } else {
+        ind.className = 'small text-danger';
+        ind.textContent = 'Difference: ' + fmtMoney(money(sumD - sumC));
+      }
+    }
+
+    function openEntryModal(entryId) {
+      editingId = entryId || null;
+      const tbody = document.getElementById('entry-lines');
+      tbody.textContent = '';
+      document.getElementById('entry-modal-title').textContent = editingId ? 'Edit journal entry' : 'New journal entry';
+      document.getElementById('entry-date').value = todayStr();
+      document.getElementById('entry-desc').value = '';
+      if (editingId) {
+        const e = entries.find((x) => x.id === editingId);
+        if (e) {
+          document.getElementById('entry-date').value = e.date;
+          document.getElementById('entry-desc').value = e.desc;
+          for (const ln of e.lines) addLineRow(ln.accountId, ln.debit, ln.credit);
+        }
+      } else {
+        addLineRow(accounts[0] ? accounts[0].id : '', '', '');
+        addLineRow(accounts[0] ? accounts[0].id : '', '', '');
+      }
+      updateBalance();
+      if (typeof bootstrap !== 'undefined') {
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('entry-modal'));
+        modal.show();
+      }
+    }
+
+    function saveEntry() {
+      const lines = collectLines();
+      const err = validateEntry(lines);
+      if (err) {
+        const ind = document.getElementById('balance-indicator');
+        ind.className = 'small text-danger';
+        ind.textContent = err;
+        return;
+      }
+      const date = document.getElementById('entry-date').value;
+      const desc = document.getElementById('entry-desc').value.trim();
+      if (!date) {
+        setStatus('Please choose a date.');
+        return;
+      }
+      if (editingId) {
+        const idx = entries.findIndex((x) => x.id === editingId);
+        if (idx >= 0) entries[idx] = Object.assign({}, entries[idx], { date: date, desc: desc || entries[idx].desc, lines: lines });
+      } else {
+        entries.push({ id: generateId(), num: nextEntryNumber(entries), date: date, desc: desc || 'Journal entry', lines: lines });
+      }
+      editingId = null;
+      save();
+      setStatus('Entry saved.');
+      if (typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getInstance(document.getElementById('entry-modal')).hide();
+      }
+    }
+
+    function deleteEntry(id) {
+      const e = entries.find((x) => x.id === id);
+      if (!e) return;
+      if (!confirm('Delete entry ' + e.num + ' (' + e.desc + ')?')) return;
+      entries = entries.filter((x) => x.id !== id);
+      save();
+      setStatus('Entry ' + e.num + ' deleted.');
+    }
+
+    function loadSample() {
+      const today = todayStr();
+      const sample = [
+        { date: today, desc: 'Owner invests cash in business', lines: [['1000', 10000, 0], ['3000', 0, 10000]] },
+        { date: today, desc: 'Purchase inventory on credit', lines: [['1200', 5000, 0], ['2000', 0, 5000]] },
+        { date: today, desc: 'Cash sale', lines: [['1000', 3000, 0], ['4000', 0, 3000]] },
+        { date: today, desc: 'Pay monthly rent', lines: [['5100', 800, 0], ['1000', 0, 800]] },
+        { date: today, desc: 'Partial payment to supplier', lines: [['2000', 2000, 0], ['1000', 0, 2000]] },
+      ];
+      let added = 0;
+      for (const s of sample) {
+        const lines = [];
+        let ok = true;
+        for (const l of s.lines) {
+          const acc = accByCode(l[0]);
+          if (!acc) { ok = false; break; }
+          lines.push({ accountId: acc.id, debit: l[1], credit: l[2] });
+        }
+        if (!ok) continue;
+        entries.push({ id: generateId(), num: nextEntryNumber(entries), date: s.date, desc: s.desc, lines: lines });
+        added++;
+      }
+      if (added > 0) {
+        save();
+        setStatus('Loaded ' + added + ' sample transaction(s).');
+      } else {
+        setStatus('Could not load sample data — check your chart of accounts.');
+      }
+    }
+
+    function deleteAccount(id) {
+      const a = accById(id);
+      if (!a) return;
+      const used = entries.some((e) => e.lines.some((l) => l.accountId === id));
+      if (used) {
+        setStatus('Account ' + a.code + ' has postings and cannot be deleted.');
+        return;
+      }
+      if (!confirm('Delete account ' + a.code + ' (' + a.name + ')?')) return;
+      accounts = accounts.filter((x) => x.id !== id);
+      save();
+      setStatus('Account ' + a.code + ' deleted.');
+    }
+
+    // ---------- wiring ----------
+
+    document.getElementById('new-entry-btn').addEventListener('click', () => openEntryModal(null));
+    document.getElementById('add-line-btn').addEventListener('click', () => addLineRow('', '', ''));
+    document.getElementById('save-entry-btn').addEventListener('click', saveEntry);
+    document.getElementById('sample-btn').addEventListener('click', loadSample);
+    document.getElementById('ledger-account').addEventListener('change', renderLedger);
+
+    document.getElementById('account-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = document.getElementById('acc-code').value.trim();
+      const name = document.getElementById('acc-name').value.trim();
+      const type = document.getElementById('acc-type').value;
+      if (!code || !name) {
+        setStatus('Account needs a code and a name.');
+        return;
+      }
+      if (accByCode(code)) {
+        setStatus('An account with code ' + code + ' already exists.');
+        return;
+      }
+      accounts.push({ id: 'acc-' + code + '-' + generateId(), code: code, name: name, type: type });
+      save();
+      document.getElementById('acc-code').value = '';
+      document.getElementById('acc-name').value = '';
+      setStatus('Account ' + code + ' added.');
+    });
+
+    function importFile(file, kind) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || '');
+        if (kind === 'journals') {
+          const res = parseEntriesCSV(text);
+          if (res.entries.length === 0) {
+            setStatus('No valid entries found in that CSV.');
+            return;
+          }
+          entries = entries.concat(res.entries);
+          save();
+          setStatus('Imported ' + res.entries.length + ' entr' + (res.entries.length === 1 ? 'y' : 'ies') + (res.skipped ? ', skipped ' + res.skipped : '') + ' from ' + file.name + '.');
+        } else {
+          const res = parseAccountsCSV(text);
+          if (res.added.length === 0) {
+            setStatus('No new accounts added from that CSV.');
+            return;
+          }
+          save();
+          setStatus('Added ' + res.added.length + ' account(s), skipped ' + res.skipped.length + ' from ' + file.name + '.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('export-journals-btn').addEventListener('click', () => {
+      download('journals.csv', toEntriesCSV(entries));
+      setStatus('Exported ' + entries.length + ' entr' + (entries.length === 1 ? 'y' : 'ies') + ' to journals.csv.');
+    });
+    document.getElementById('export-accounts-btn').addEventListener('click', () => {
+      download('accounts.csv', toAccountsCSV(accounts));
+      setStatus('Exported ' + accounts.length + ' account(s) to accounts.csv.');
+    });
+    document.getElementById('file-journals').addEventListener('change', () => {
+      if (document.getElementById('file-journals').files[0]) importFile(document.getElementById('file-journals').files[0], 'journals');
+      document.getElementById('file-journals').value = '';
+    });
+    document.getElementById('file-accounts').addEventListener('change', () => {
+      if (document.getElementById('file-accounts').files[0]) importFile(document.getElementById('file-accounts').files[0], 'accounts');
+      document.getElementById('file-accounts').value = '';
+    });
+
+    load();
+    renderAll();
+  </script>
+</body>
+</html>
