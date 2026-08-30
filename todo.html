@@ -4,41 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hello — Todo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <nav class="nav" aria-label="Main navigation">
-    <a href="index.html" class="brand">Hello</a>
-    <div class="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="calculator.html" class="nav-link">Calculator</a>
-      <a href="todo.html" class="nav-link active" aria-current="page">Todo</a>
-    </div>
-  </nav>
-
-  <main class="page page-wide">
-    <h1 class="page-title">Todo List</h1>
-    <div class="card">
-      <form class="todo-form" id="todo-form">
-        <input class="todo-input" id="todo-input" type="text" placeholder="What needs to be done?" maxlength="200" autocomplete="off" />
-        <button class="btn btn-primary" type="submit">Add</button>
-      </form>
-
-      <ul class="todo-list" id="todo-list"></ul>
-
-      <div class="todo-actions">
-        <button class="btn" id="btn-export">Export CSV</button>
-        <label class="btn btn-file" for="file-import">Import CSV</label>
-        <input type="file" id="file-import" accept=".csv,text/csv" hidden />
-        <button class="btn" id="btn-open" hidden>Open CSV file</button>
-        <button class="btn" id="btn-save" hidden>Save CSV file</button>
-        <button class="btn btn-soft-danger" id="btn-clear-done">Clear done</button>
+<body class="d-flex flex-column align-items-center">
+  <div class="container" style="max-width: 620px;">
+    <nav class="navbar navbar-expand bg-white rounded-4 shadow-sm px-3 py-2 mt-3" aria-label="Main navigation">
+      <div class="container-fluid p-0">
+        <a class="navbar-brand fw-bold gradient-text" href="index.html">Hello</a>
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item">
+            <a class="nav-link px-3" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="calculator.html">Calculator</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 active" aria-current="page" href="todo.html">Todo</a>
+          </li>
+        </ul>
       </div>
+    </nav>
 
-      <p class="status" id="status">Edits are saved automatically in this browser and can be exported to todos.csv.</p>
-    </div>
-  </main>
+    <main class="mt-4 mb-3">
+      <h1 class="text-white fw-bold text-center mb-3">Todo List</h1>
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <form id="todo-form" class="input-group mb-3">
+            <input id="todo-input" class="form-control" type="text" placeholder="What needs to be done?" maxlength="200" autocomplete="off" />
+            <button class="btn btn-primary" type="submit">Add</button>
+          </form>
 
+          <ul id="todo-list" class="list-group list-group-flush"></ul>
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-outline-secondary btn-sm" id="btn-export">Export CSV</button>
+            <label class="btn btn-outline-secondary btn-sm mb-0" for="file-import">Import CSV</label>
+            <input type="file" id="file-import" accept=".csv,text/csv" hidden />
+            <button class="btn btn-outline-secondary btn-sm" id="btn-open" hidden>Open CSV file</button>
+            <button class="btn btn-outline-secondary btn-sm" id="btn-save" hidden>Save CSV file</button>
+            <button class="btn btn-outline-danger btn-sm" id="btn-clear-done">Clear done</button>
+          </div>
+
+          <p class="text-muted small text-center mt-3 mb-0" id="status">
+            Edits are saved automatically in this browser and can be exported to todos.csv.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
   <script>
     const STORAGE_KEY = 'hello.todos';
 
@@ -209,18 +225,18 @@
       listEl.textContent = '';
       if (todos.length === 0) {
         const li = document.createElement('li');
-        li.className = 'todo-empty';
+        li.className = 'list-group-item text-center text-muted py-4';
         li.textContent = 'Nothing here yet — add a task above.';
         listEl.appendChild(li);
         return;
       }
       todos.forEach((t) => {
         const li = document.createElement('li');
-        li.className = 'todo-item' + (t.done ? ' done' : '');
+        li.className = 'list-group-item d-flex align-items-center gap-2 px-3' + (t.done ? ' todo-done' : '');
 
         const cb = document.createElement('input');
         cb.type = 'checkbox';
-        cb.className = 'todo-check';
+        cb.className = 'form-check-input mt-0 flex-shrink-0';
         cb.checked = t.done;
         cb.addEventListener('change', () => toggleTodo(t.id));
         li.appendChild(cb);
@@ -228,17 +244,17 @@
         if (editingId === t.id) {
           const ed = document.createElement('input');
           ed.type = 'text';
-          ed.className = 'todo-edit-input';
+          ed.className = 'form-control form-control-sm flex-grow-1';
           ed.value = t.title;
           ed.maxLength = 200;
 
           const ok = document.createElement('button');
-          ok.className = 'icon-btn';
+          ok.className = 'btn btn-primary btn-sm flex-shrink-0';
           ok.textContent = 'Save';
           ok.addEventListener('click', () => editTodo(t.id, ed.value));
 
           const cancel = document.createElement('button');
-          cancel.className = 'icon-btn';
+          cancel.className = 'btn btn-outline-secondary btn-sm flex-shrink-0';
           cancel.textContent = 'Cancel';
           cancel.addEventListener('click', () => {
             editingId = null;
@@ -259,12 +275,12 @@
           setTimeout(() => ed.focus(), 0);
         } else {
           const span = document.createElement('span');
-          span.className = 'todo-title';
+          span.className = 'todo-title flex-grow-1';
           span.textContent = t.title;
           li.appendChild(span);
 
           const editBtn = document.createElement('button');
-          editBtn.className = 'icon-btn';
+          editBtn.className = 'btn btn-outline-secondary btn-sm flex-shrink-0';
           editBtn.textContent = 'Edit';
           editBtn.addEventListener('click', () => {
             editingId = t.id;
@@ -273,7 +289,7 @@
           li.appendChild(editBtn);
 
           const delBtn = document.createElement('button');
-          delBtn.className = 'icon-btn del';
+          delBtn.className = 'btn btn-outline-danger btn-sm flex-shrink-0';
           delBtn.textContent = 'Delete';
           delBtn.addEventListener('click', () => deleteTodo(t.id));
           li.appendChild(delBtn);

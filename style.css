@@ -1,18 +1,8 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Theme overrides on top of Bootstrap 5 */
 
 body {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 0 1rem 2rem;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
@@ -26,149 +16,31 @@ textarea {
   user-select: text;
 }
 
-/* ---------- Navigation ---------- */
-
-.nav {
-  width: 100%;
-  max-width: 720px;
-  margin: 1rem auto 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(8px);
-  border-radius: 999px;
-  padding: 0.5rem 1.25rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-}
-
-.nav .brand {
-  font-weight: 800;
-  font-size: 1.1rem;
+.gradient-text {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-decoration: none;
 }
 
-.nav-links {
-  display: flex;
-  gap: 0.25rem;
-  flex-wrap: wrap;
+/* Navbar active link pill */
+.navbar .nav-link.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
 }
 
-.nav-link {
-  padding: 0.45rem 0.9rem;
+.navbar .nav-link {
   border-radius: 999px;
-  text-decoration: none;
-  color: #4b5563;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.nav-link:hover {
-  background: #f3f4f6;
-}
-
-.nav-link.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-}
-
-/* ---------- Layout ---------- */
-
-.page {
-  width: 100%;
-  max-width: 520px;
-  margin: 2rem auto 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.page-wide {
-  max-width: 620px;
-}
-
-.page-title {
-  color: #ffffff;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.card {
-  background: #ffffff;
-  border-radius: 1.25rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-  padding: 1.25rem;
-  width: 100%;
-}
-
-.sign {
-  padding: 2rem 3.5rem;
-  text-align: center;
-}
-
-.sign h1 {
-  font-size: 3.25rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 0.05em;
-}
-
-.caption {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-/* ---------- Shared buttons ---------- */
-
-.btn {
-  padding: 0.65rem 0.95rem;
-  border: none;
-  border-radius: 0.6rem;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  background: #f3f4f6;
-  color: #111827;
-  transition: filter 0.12s ease, transform 0.05s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn:hover {
-  filter: brightness(0.95);
-}
-
-.btn:active {
-  transform: scale(0.97);
-}
-
+/* Primary buttons match the site gradient */
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-}
-
-.btn-soft-danger {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.btn-file {
-  cursor: pointer;
+  --bs-btn-bg: #667eea;
+  --bs-btn-border-color: #667eea;
+  --bs-btn-hover-bg: #7b93f0;
+  --bs-btn-hover-border-color: #7b93f0;
+  --bs-btn-active-bg: #5a70d6;
+  --bs-btn-active-border-color: #5a70d6;
 }
 
 /* ---------- Calculator ---------- */
@@ -177,8 +49,7 @@ textarea {
   background: #0b1020;
   color: #ffffff;
   border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
+  padding: 0.9rem 1.25rem;
   text-align: right;
   font-size: clamp(1.75rem, 8vw, 2.25rem);
   font-weight: 500;
@@ -193,94 +64,27 @@ textarea {
   word-break: break-all;
 }
 
-.calc-buttons {
+.calc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.6rem;
 }
 
-.btn-digit {
+.calc-grid .btn {
   height: 3.4rem;
-  border: none;
-  border-radius: 0.65rem;
   font-size: 1.3rem;
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  background: #f3f4f6;
-  color: #111827;
-  transition: filter 0.12s ease, transform 0.05s ease;
-}
-
-.btn-digit:hover {
-  filter: brightness(0.95);
-}
-
-.btn-digit:active {
-  transform: scale(0.96);
-}
-
-.btn-op {
-  height: 3.4rem;
-  border: none;
   border-radius: 0.65rem;
-  font-size: 1.3rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  background: #eaeef5;
-  color: #374151;
-  transition: filter 0.12s ease, transform 0.05s ease;
 }
 
-.btn-op:hover {
-  filter: brightness(0.95);
-}
-
-.btn-op:active {
-  transform: scale(0.96);
-}
-
-.btn-clear {
-  height: 3.4rem;
-  border: none;
-  border-radius: 0.65rem;
-  font-size: 1.3rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  background: #fef2f2;
-  color: #dc2626;
-  transition: filter 0.12s ease, transform 0.05s ease;
-}
-
-.btn-clear:hover {
-  filter: brightness(0.96);
-}
-
-.btn-clear:active {
-  transform: scale(0.96);
-}
-
-.btn-eq {
-  height: 3.4rem;
-  border: none;
-  border-radius: 0.65rem;
-  font-size: 1.3rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
+.calc-grid .btn-eq {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
   color: #ffffff;
-  transition: filter 0.12s ease, transform 0.05s ease;
 }
 
-.btn-eq:hover {
-  filter: brightness(1.05);
-}
-
-.btn-eq:active {
-  transform: scale(0.96);
+.calc-grid .btn-eq:hover {
+  filter: brightness(1.08);
 }
 
 .span-2 {
@@ -291,127 +95,13 @@ textarea {
   grid-row: span 2;
 }
 
-.hint {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
 /* ---------- Todo list ---------- */
 
-.todo-form {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.todo-input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.65rem;
-  font-family: inherit;
-  font-size: 1rem;
-  color: #111827;
-}
-
-.todo-input:focus {
-  outline: 2px solid rgba(102, 126, 234, 0.45);
-  border-color: #667eea;
-}
-
-.todo-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.todo-empty {
-  padding: 1.25rem;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 0.95rem;
-  background: #f9fafb;
-  border-radius: 0.6rem;
-  border: 1px dashed #d1d5db;
-}
-
-.todo-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.75rem;
-  background: #f9fafb;
-  border-radius: 0.6rem;
-}
-
-.todo-check {
-  width: 1.2rem;
-  height: 1.2rem;
-  flex-shrink: 0;
-  accent-color: #667eea;
-  cursor: pointer;
-}
-
 .todo-title {
-  flex: 1;
-  font-size: 1rem;
-  color: #111827;
   word-break: break-word;
 }
 
-.todo-item.done .todo-title {
+.todo-done .todo-title {
   text-decoration: line-through;
   color: #9ca3af;
-}
-
-.todo-edit-input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid #667eea;
-  border-radius: 0.5rem;
-  font-family: inherit;
-  font-size: 1rem;
-  color: #111827;
-  outline: none;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #6b7280;
-  padding: 0.3rem 0.55rem;
-  border-radius: 0.45rem;
-  flex-shrink: 0;
-  transition: background 0.12s ease;
-}
-
-.icon-btn:hover {
-  background: #eef0f6;
-}
-
-.icon-btn.del {
-  color: #dc2626;
-}
-
-.todo-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.status {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-  text-align: center;
 }

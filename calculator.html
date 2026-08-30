@@ -4,46 +4,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Hello — Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <nav class="nav" aria-label="Main navigation">
-    <a href="index.html" class="brand">Hello</a>
-    <div class="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="calculator.html" class="nav-link active" aria-current="page">Calculator</a>
-      <a href="todo.html" class="nav-link">Todo</a>
-    </div>
-  </nav>
-
-  <main class="page">
-    <h1 class="page-title">Calculator</h1>
-    <div class="card">
-      <div class="calc-display" id="display" aria-live="polite">0</div>
-      <div class="calc-buttons">
-        <button class="btn-clear" data-key="C" aria-label="Clear">C</button>
-        <button class="btn-digit" data-key="&#9003;" aria-label="Backspace">&#9003;</button>
-        <button class="btn-op" data-key="/">&#247;</button>
-        <button class="btn-op" data-key="*">&#215;</button>
-        <button class="btn-digit" data-key="7">7</button>
-        <button class="btn-digit" data-key="8">8</button>
-        <button class="btn-digit" data-key="9">9</button>
-        <button class="btn-op" data-key="-">&#8722;</button>
-        <button class="btn-digit" data-key="4">4</button>
-        <button class="btn-digit" data-key="5">5</button>
-        <button class="btn-digit" data-key="6">6</button>
-        <button class="btn-op" data-key="+">+</button>
-        <button class="btn-digit" data-key="1">1</button>
-        <button class="btn-digit" data-key="2">2</button>
-        <button class="btn-digit" data-key="3">3</button>
-        <button class="btn-eq span-2-rows" data-key="=">=</button>
-        <button class="btn-digit span-2" data-key="0">0</button>
-        <button class="btn-digit" data-key=".">.</button>
+<body class="d-flex flex-column align-items-center">
+  <div class="container" style="max-width: 560px;">
+    <nav class="navbar navbar-expand bg-white rounded-4 shadow-sm px-3 py-2 mt-3" aria-label="Main navigation">
+      <div class="container-fluid p-0">
+        <a class="navbar-brand fw-bold gradient-text" href="index.html">Hello</a>
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item">
+            <a class="nav-link px-3" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 active" aria-current="page" href="calculator.html">Calculator</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="todo.html">Todo</a>
+          </li>
+        </ul>
       </div>
-      <p class="hint">Keyboard: digits, + &minus; &times; &divide;, Enter, Esc, Backspace</p>
-    </div>
-  </main>
+    </nav>
 
+    <main class="mt-4 mb-3">
+      <h1 class="text-white fw-bold text-center mb-3">Calculator</h1>
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <div class="calc-display mb-3" id="display" aria-live="polite">0</div>
+          <div class="calc-grid">
+            <button type="button" class="btn btn-outline-danger" data-key="C" aria-label="Clear">C</button>
+            <button type="button" class="btn btn-outline-secondary" data-key="&#9003;" aria-label="Backspace">&#9003;</button>
+            <button type="button" class="btn btn-outline-secondary" data-key="/">&#247;</button>
+            <button type="button" class="btn btn-outline-secondary" data-key="*">&#215;</button>
+            <button type="button" class="btn btn-light" data-key="7">7</button>
+            <button type="button" class="btn btn-light" data-key="8">8</button>
+            <button type="button" class="btn btn-light" data-key="9">9</button>
+            <button type="button" class="btn btn-outline-secondary" data-key="-">&#8722;</button>
+            <button type="button" class="btn btn-light" data-key="4">4</button>
+            <button type="button" class="btn btn-light" data-key="5">5</button>
+            <button type="button" class="btn btn-light" data-key="6">6</button>
+            <button type="button" class="btn btn-outline-secondary" data-key="+">+</button>
+            <button type="button" class="btn btn-light" data-key="1">1</button>
+            <button type="button" class="btn btn-light" data-key="2">2</button>
+            <button type="button" class="btn btn-light" data-key="3">3</button>
+            <button type="button" class="btn btn-eq span-2-rows" data-key="=">=</button>
+            <button type="button" class="btn btn-light span-2" data-key="0">0</button>
+            <button type="button" class="btn btn-light" data-key=".">.</button>
+          </div>
+          <p class="text-muted small text-center mt-3 mb-0">
+            Keyboard: digits, + &minus; &times; &divide;, Enter, Esc, Backspace
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
   <script>
     const display = document.getElementById('display');
 
@@ -157,7 +173,7 @@
       display.textContent = entry === '' ? '0' : entry;
     }
 
-    document.querySelectorAll('.calc-buttons .btn-digit, .calc-buttons .btn-op, .calc-buttons .btn-clear, .calc-buttons .btn-eq').forEach((btn) => {
+    document.querySelectorAll('.calc-grid .btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const k = btn.dataset.key;
         if (/^[0-9]$/.test(k)) handleDigit(k);
